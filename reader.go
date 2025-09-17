@@ -6,12 +6,13 @@ import (
 	"compress/zlib"
 	"encoding/binary"
 	"fmt"
-	"github.com/pkg/errors"
 	"io"
 	"io/ioutil"
 	"math"
 	"os"
 	"strconv"
+
+	"github.com/pkg/errors"
 )
 
 type PdfReader struct {
@@ -1335,7 +1336,7 @@ func (this *PdfReader) getPageContent(objSpec *PdfValue) ([]*PdfValue, error) {
 
 		// If content value is an array, recursively get page content from array
 		// Otherwise append the content directly
-		if content.Value.Type == PDF_TYPE_ARRAY {
+		if content.Value != nil && content.Value.Type == PDF_TYPE_ARRAY && content.Stream == nil {
 			arrayContents, err := this.getPageContent(content.Value)
 			if err != nil {
 				return nil, errors.Wrap(err, "Failed to get page content from content array")
