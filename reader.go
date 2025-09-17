@@ -1332,7 +1332,18 @@ func (this *PdfReader) getPageContent(objSpec *PdfValue) ([]*PdfValue, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "Failed to resolve object")
 		}
-		contents = append(contents, content)
+
+		// If content value is an array, recursively get page content from array
+		// Otherwise append the content directly
+		if content.Value.Type == PDF_TYPE_ARRAY {
+			arrayContents, err := this.getPageContent(content.Value)
+			if err != nil {
+				return nil, errors.Wrap(err, "Failed to get page content from content array")
+			}
+			contents = append(contents, arrayContents...)
+		} else {
+			contents = append(contents, content)
+		}
 	} else if objSpec.Type == PDF_TYPE_ARRAY {
 		// If objSpec is an array, loop through the array and recursively get page content and append to contents
 		for i := 0; i < len(objSpec.Array); i++ {
